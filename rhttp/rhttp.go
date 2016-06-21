@@ -25,7 +25,7 @@ type HttpFetcher struct {
 
 func getHttpClient() *http.Client {
 	if httpClient == nil {
-		timeout := time.Duration(5 * time.Second)
+		timeout := time.Duration(15 * time.Second)
 		httpClient = &http.Client{
 			Timeout: timeout,
 		}

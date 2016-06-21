@@ -35,7 +35,7 @@ func GetTopicPrefix(httpFetcher rhttp.IHttpFetcher) string {
 	}
 	var mqttConfigResponse struct {
 		Status struct {
-			Code int
+			Code int `json:"code"`
 		}
 		TopicPrefix string `json:"topic_prefix"`
 	}
