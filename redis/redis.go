@@ -52,9 +52,8 @@ func Init() {
 // ConfigureSidekiq - configures the sidekiq queue.
 func ConfigureSidekiq() {
 	redisConfig := FetchRedisConfig()
-	workers.Configure(map[string]string{
-		"process": "pingclient", "password": redisConfig.Password,
-		"server": redisConfig.Host + ":" + redisConfig.Port})
+	workers.Configure(map[string]string{"process": "pingclient", "password": redisConfig.Password,
+		"database": "12", "server": redisConfig.Host + ":" + redisConfig.Port})
 }
 
 // EnqueSidekiqJob - enques the sidekiq job
