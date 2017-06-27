@@ -3,6 +3,8 @@ package goredis
 import (
 	"go_common_lib/config"
 	"go_common_lib/logger"
+
+	"github.com/Scalingo/go-workers"
 	"gopkg.in/redis.v4"
 )
 
@@ -45,6 +47,19 @@ func Init() {
 			DB:       0,                    // use default DB
 		})
 	}
+}
+
+// ConfigureSidekiq - configures the sidekiq queue.
+func ConfigureSidekiq() {
+	redisConfig := FetchRedisConfig()
+	workers.Configure(map[string]string{
+		"process": "pingclient", "password": redisConfig.Password,
+		"server": redisConfig.Host + ":" + redisConfig.Port})
+}
+
+// EnqueSidekiqJob - enques the sidekiq job
+func EnqueSidekiqJob(queue string, worker string, params []string) {
+	workers.Enqueue(queue, worker, params)
 }
 
 // GetValue - get data from redis
