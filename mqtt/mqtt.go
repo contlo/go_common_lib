@@ -3,11 +3,12 @@ package mymqtt
 import (
 	"encoding/json"
 	"fmt"
-	MQTT "git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
 	"go_common_lib/config"
 	"go_common_lib/rhttp"
 	"math/rand"
 	"strconv"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 func CreateMqttClientOptions() *MQTT.ClientOptions {
