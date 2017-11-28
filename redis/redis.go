@@ -3,6 +3,7 @@ package goredis
 import (
 	"go_common_lib/config"
 	"go_common_lib/logger"
+	"time"
 
 	"github.com/Scalingo/go-workers"
 	"gopkg.in/redis.v4"
@@ -76,6 +77,14 @@ func (client Client) GetValue(key string) (string, error) {
 
 func (client Client) SetValue(key string, value string) error {
 	err := redisClient.Set(key, value, 0).Err()
+	if err != nil {
+		log.Error("Redis read key error: " + err.Error())
+	}
+	return err
+}
+
+func (client Client) SetValueEx(key string, value string, seconds int) error {
+	err := redisClient.Set(key, value, time.Duration(seconds) * time.Second).Err()
 	if err != nil {
 		log.Error("Redis read key error: " + err.Error())
 	}
