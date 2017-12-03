@@ -15,6 +15,8 @@ var redisClient *redis.Client
 type IClient interface {
 	GetValue(key string) (string, error)
 	SetValue(key string, value string) error
+	SetValueEx(key string, value string, seconds int) error
+	LPush(key string, value string) error
 }
 
 type Client struct {
@@ -85,6 +87,15 @@ func (client Client) SetValue(key string, value string) error {
 
 func (client Client) SetValueEx(key string, value string, seconds int) error {
 	err := redisClient.Set(key, value, time.Duration(seconds) * time.Second).Err()
+	if err != nil {
+		log.Error("Redis read key error: " + err.Error())
+	}
+	return err
+}
+
+
+func (client Client) LPush(key string, value string) error {
+	err := redisClient.LPush(key, value).Err()
 	if err != nil {
 		log.Error("Redis read key error: " + err.Error())
 	}

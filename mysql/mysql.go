@@ -26,7 +26,8 @@ func Init() {
 		MysqlConfig = FetchMysqlConfig()
 	}
 	if DB == nil {
-		dataSourceName := fmt.Sprintf("%s:%s@(%s:%s)/%s", MysqlConfig.Username, MysqlConfig.Password, MysqlConfig.Host, MysqlConfig.Port, MysqlConfig.Database)
+		dataSourceName := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", MysqlConfig.Username, MysqlConfig.Password, MysqlConfig.Host, MysqlConfig.Port, MysqlConfig.Database)
+		fmt.Println(dataSourceName)
 		var err error
 		DB, err = sqlx.Connect("mysql", dataSourceName)
 		if err != nil {
