@@ -11,12 +11,14 @@ import (
 
 //redis global client to be declared
 var redisClient *redis.Client
+var redisAnalyticsClient *redis.Client
 
 type IClient interface {
 	GetValue(key string) (string, error)
 	SetValue(key string, value string) error
 	SetValueEx(key string, value string, seconds int) error
 	LPush(key string, value string) error
+	LAnalyticsPush(key string, value string) error
 }
 
 type Client struct {
@@ -25,6 +27,8 @@ type Client struct {
 type RedisConfig struct {
 	Host     string
 	Port     string
+	AnalyticsHost     string
+	AnalyticsPort     string
 	Password string
 }
 
@@ -36,16 +40,27 @@ func FetchRedisConfig() *RedisConfig {
 	config := v1.GetStringMapString(myconfig.GetEnv())
 	redisConfig.Host = config["host"]
 	redisConfig.Port = config["port"]
+	redisConfig.AnalyticsHost = config["analytics_host"]
+	redisConfig.AnalyticsPort = config["analytics_port"]
 	redisConfig.Password = config["password"]
 	return &redisConfig
 }
 
 // Init - initializes the redisClient
 func Init() {
+	config := FetchRedisConfig()
 	if redisClient == nil {
-		redisConfig := FetchRedisConfig()
+		redisConfig := config
 		redisClient = redis.NewClient(&redis.Options{
 			Addr:     redisConfig.Host + ":" + redisConfig.Port,
+			Password: redisConfig.Password, // no password set
+			DB:       0,                    // use default DB
+		})
+	}
+	if redisAnalyticsClient == nil {
+		redisConfig := config
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     redisConfig.AnalyticsHost + ":" + redisConfig.AnalyticsPort,
 			Password: redisConfig.Password, // no password set
 			DB:       0,                    // use default DB
 		})
@@ -96,6 +111,14 @@ func (client Client) SetValueEx(key string, value string, seconds int) error {
 
 func (client Client) LPush(key string, value string) error {
 	err := redisClient.LPush(key, value).Err()
+	if err != nil {
+		log.Error("Redis read key error: " + err.Error())
+	}
+	return err
+}
+
+func (client Client) LAnalyticsPush(key string, value string) error {
+	err := redisAnalyticsClient.LPush(key, value).Err()
 	if err != nil {
 		log.Error("Redis read key error: " + err.Error())
 	}
