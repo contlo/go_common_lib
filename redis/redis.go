@@ -28,6 +28,10 @@ type RedisConfig struct {
 	Password string
 }
 
+func GetRedisClient() *redis.Client{
+	return redisClient
+}
+
 // FetchRedisConfig - reading redis config from redis.yml
 func FetchRedisConfig() *RedisConfig {
 	v1 := myconfig.SetupViperAndReadConfig("redis")

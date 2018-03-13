@@ -13,6 +13,7 @@ type IHttpFetcher interface {
 	GetWithAuth(url string, authKey string) ([]byte, error)
 	Post(url string, buffer *bytes.Buffer) ([]byte, error)
 	PostWithAuth(url string, buffer *bytes.Buffer, authKey string) ([]byte, error)
+	PostWithHeaderAuthKeys(url string, buffer *bytes.Buffer, authKey string, headerMap map[string]string) (int, []byte, error)
 }
 
 var (
@@ -62,22 +63,32 @@ func (fetcher *HttpFetcher) Post(url string, buffer *bytes.Buffer) ([]byte, erro
 }
 
 func (fetcher *HttpFetcher) PostWithAuth(url string, buffer *bytes.Buffer, authKey string) ([]byte, error) {
+	_, byteArr, err := fetcher.PostWithHeaderAuthKeys(url, buffer, authKey, map[string]string{})
+	return byteArr, err
+}
+
+func (fetcher *HttpFetcher) PostWithHeaderAuthKeys(url string, buffer *bytes.Buffer, authKey string, headerMap map[string]string) (int, []byte, error) {
 	req, err := http.NewRequest("POST", fetcher.Server+url, buffer)
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 	if authKey != "" {
 		req.Header.Add("Authorization", authKey)
 	}
+
+	for key, value := range headerMap {
+		req.Header.Add(key, value)
+	}
+
 	res, err := getHttpClient().Do(req)
 	if err != nil {
-		return nil, err
+		return 400, nil, err
 	}
 
 	defer res.Body.Close()
 	contents, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Error("Failed to call http post "+url, err)
-		return nil, err
+		return 400, nil, err
 	}
 	// bytes.Buffer
-	return contents, nil
+	return res.StatusCode, contents, nil
 }
