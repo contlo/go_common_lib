@@ -33,3 +33,7 @@ func SetupViperAndReadConfig(configName string) *viper.Viper {
 func MetricEnabled() bool {
 	return GetEnv() == "production"
 }
+
+func IsProduction() bool {
+	return GetEnv() == "production"
+}

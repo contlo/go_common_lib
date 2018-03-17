@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	DB          *sqlx.DB
-	MysqlConfig *MysqlConfigData
+	MasterDB *MysqlDB
+	SlaveDB  *MysqlDB
 )
 
 type MysqlConfigData struct {
@@ -21,25 +21,46 @@ type MysqlConfigData struct {
 	Port     string
 }
 
+type MysqlDB struct {
+	DB          *sqlx.DB
+	IsSlave     bool
+	MysqlConfig *MysqlConfigData
+}
+
 func Init() {
-	if MysqlConfig == nil {
-		MysqlConfig = FetchMysqlConfig()
+	MasterDB = &MysqlDB{IsSlave: false}
+	MasterDB.Init()
+	if myconfig.IsProduction() {
+		SlaveDB = &MysqlDB{IsSlave: true}
+		SlaveDB.Init()
+	} else {
+		SlaveDB = MasterDB
 	}
-	if DB == nil {
-		dataSourceName := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", MysqlConfig.Username, MysqlConfig.Password, MysqlConfig.Host, MysqlConfig.Port, MysqlConfig.Database)
+}
+func (db *MysqlDB) Init() {
+	dbEnv := myconfig.GetEnv()
+	if db.IsSlave {
+		dbEnv = "production_slave"
+	}
+	if db.MysqlConfig == nil {
+		db.MysqlConfig = FetchMysqlConfig(dbEnv)
+	}
+
+	if db.DB == nil {
+		dataSourceName := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", db.MysqlConfig.Username, db.MysqlConfig.Password, db.MysqlConfig.Host, db.MysqlConfig.Port, db.MysqlConfig.Database)
 		fmt.Println(dataSourceName)
 		var err error
-		DB, err = sqlx.Connect("mysql", dataSourceName)
+		db.DB, err = sqlx.Connect("mysql", dataSourceName)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-func FetchMysqlConfig() *MysqlConfigData {
+func FetchMysqlConfig(env string) *MysqlConfigData {
 	v1 := myconfig.SetupViperAndReadConfig("mysql")
 
-	config := v1.GetStringMapString(myconfig.GetEnv())
+	config := v1.GetStringMapString(env)
 	var mysqlConfig MysqlConfigData
 
 	mysqlConfig.Database = config["database"]
