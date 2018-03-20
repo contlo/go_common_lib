@@ -1,8 +1,8 @@
 package goredis
 
 import (
-	"go_common_lib/config"
-	"go_common_lib/logger"
+	"bitbucket.org/roadrunnr/go_common_lib/config"
+	"bitbucket.org/roadrunnr/go_common_lib/logger"
 	"time"
 
 	"github.com/Scalingo/go-workers"

@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 	"github.com/op/go-logging"
-	"go_common_lib/config"
+	"bitbucket.org/roadrunnr/go_common_lib/config"
 	"os"
 )
 

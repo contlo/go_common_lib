@@ -2,7 +2,7 @@ package rhttp
 
 import (
 	"bytes"
-	"go_common_lib/logger"
+	"bitbucket.org/roadrunnr/go_common_lib/logger"
 	"io/ioutil"
 	"net/http"
 	"time"

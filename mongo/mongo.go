@@ -2,8 +2,8 @@ package mongo
 
 import (
 	"fmt"
-	"go_common_lib/config"
-	"go_common_lib/logger"
+	"bitbucket.org/roadrunnr/go_common_lib/config"
+	"bitbucket.org/roadrunnr/go_common_lib/logger"
 	"gopkg.in/mgo.v2"
 	"time"
 )
