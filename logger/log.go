@@ -3,7 +3,8 @@ package log
 import (
 	"fmt"
 	"github.com/op/go-logging"
-	"bitbucket.org/roadrunnr/go_common_lib/config"
+	"bitbucket.org/zatasales/go_common_lib/config"
+	myconfig "go_common_lib/config"
 	"os"
 )
 

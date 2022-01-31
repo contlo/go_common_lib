@@ -2,7 +2,8 @@ package gomysql
 
 import (
 	"fmt"
-	"bitbucket.org/roadrunnr/go_common_lib/config"
+	"bitbucket.org/zatasales/go_common_lib/config"
+	myconfig "go_common_lib/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"

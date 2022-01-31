@@ -2,8 +2,10 @@ package mongo
 
 import (
 	"fmt"
-	"bitbucket.org/roadrunnr/go_common_lib/config"
-	"bitbucket.org/roadrunnr/go_common_lib/logger"
+	"bitbucket.org/zatasales/go_common_lib/config"
+	"bitbucket.org/zatasales/go_common_lib/logger"
+	myconfig "go_common_lib/config"
+	log "go_common_lib/logger"
 	"gopkg.in/mgo.v2"
 	"time"
 )
