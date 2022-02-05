@@ -2,8 +2,7 @@ package gomysql
 
 import (
 	"fmt"
-	"bitbucket.org/zatasales/go_common_lib/config"
-	myconfig "go_common_lib/config"
+	myconfig "bitbucket.org/zatasales/go_common_lib/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -26,25 +25,16 @@ type MysqlDB struct {
 	DB          *sqlx.DB
 	IsSlave     bool
 	MysqlConfig *MysqlConfigData
+	ConfigFile string
 }
 
-func Init() {
-	MasterDB = &MysqlDB{IsSlave: false}
-	MasterDB.Init()
-	if myconfig.IsProduction() {
-		SlaveDB = &MysqlDB{IsSlave: true}
-		SlaveDB.Init()
-	} else {
-		SlaveDB = MasterDB
-	}
-}
 func (db *MysqlDB) Init() {
 	dbEnv := myconfig.GetEnv()
 	if db.IsSlave {
 		dbEnv = "production_slave"
 	}
 	if db.MysqlConfig == nil {
-		db.MysqlConfig = FetchMysqlConfig(dbEnv)
+		db.MysqlConfig = FetchMysqlConfig(dbEnv, db.ConfigFile)
 	}
 
 	if db.DB == nil {
@@ -58,8 +48,8 @@ func (db *MysqlDB) Init() {
 	}
 }
 
-func FetchMysqlConfig(env string) *MysqlConfigData {
-	v1 := myconfig.SetupViperAndReadConfig("mysql")
+func FetchMysqlConfig(env string, configFile string) *MysqlConfigData {
+	v1 := myconfig.SetupViperAndReadConfig(configFile)
 
 	config := v1.GetStringMapString(env)
 	var mysqlConfig MysqlConfigData

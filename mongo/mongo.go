@@ -1,13 +1,14 @@
 package mongo
 
 import (
+	"crypto/tls"
 	"fmt"
-	"bitbucket.org/zatasales/go_common_lib/config"
-	"bitbucket.org/zatasales/go_common_lib/logger"
-	myconfig "go_common_lib/config"
-	log "go_common_lib/logger"
+	myconfig "bitbucket.org/zatasales/go_common_lib/config"
+	log "bitbucket.org/zatasales/go_common_lib/logger"
 	"gopkg.in/mgo.v2"
+	"net"
 	"time"
+	_ "time"
 )
 
 var (
@@ -20,22 +21,18 @@ type MongoConfigData struct {
 	Hosts    []string
 	Username string
 	Password string
+	MongoURI string
 }
 
-func InitMongo() {
-	if MongoConfig == nil {
-		MongoConfig = FetchMongoConfig()
-	}
-	log.Info("Mongo hosts", MongoConfig.Hosts)
-
-	if MgoSession == nil {
-		CreateMongoSession()
-	}
+type MongoDB struct {
+	MgoSession  *mgo.Session
+	MongoConfig *MongoConfigData
 }
+
 
 // FetchMongoConfig - reading mongo config from mongo.yml and setting it up
-func FetchMongoConfig() *MongoConfigData {
-	v1 := myconfig.SetupViperAndReadConfig("mongo")
+func FetchMongoConfig(configFile string) *MongoConfigData {
+	v1 := myconfig.SetupViperAndReadConfig(configFile)
 
 	var mongoConfig1 MongoConfigData
 	config := v1.GetStringMapString(myconfig.GetEnv())
@@ -43,24 +40,41 @@ func FetchMongoConfig() *MongoConfigData {
 	mongoConfig1.Hosts = v1.GetStringSlice(myconfig.GetEnv() + ".hosts")
 	mongoConfig1.Username = config["username"]
 	mongoConfig1.Password = config["password"]
+	mongoConfig1.MongoURI = config["mongo_uri"]
 	return &mongoConfig1
 }
 
 // creating mongo session
-func CreateMongoSession() *mgo.Session {
-	if MgoSession == nil {
-		config := MongoConfig
+func (db *MongoDB) CreateMongoSession() *mgo.Session {
+	if db.MgoSession == nil {
+		config := db.MongoConfig
 		var err error
-		info := &mgo.DialInfo{
-			Addrs:    config.Hosts,
-			Timeout:  60 * time.Second,
-			Database: config.Database,
-			Username: config.Username,
-			Password: config.Password,
+		var dialInfo *mgo.DialInfo
+		log.Info("RAMRAM")
+		log.Info(config.MongoURI)
+		if len(config.MongoURI) > 0 {
+			dialInfo, err = mgo.ParseURL(config.MongoURI)
+			tlsConfig := &tls.Config{}
+			dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+				conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
+				return conn, err
+			}
+		} else {
+			dialInfo = &mgo.DialInfo{
+				Addrs:    config.Hosts,
+				Timeout:  60 * time.Second,
+				Database: config.Database,
+				Username: config.Username,
+				Password: config.Password,
+			}
 		}
 
+
+		log.Info("Connecting to mongo db...", err)
 		fmt.Println("Connecting to mongo db...")
-		MgoSession, err = mgo.DialWithInfo(info)
+		MgoSession, err := mgo.DialWithInfo(dialInfo)
+
+		//MgoSession, err = mgo.DialWithInfo(info)
 		if err != nil {
 			panic(err) // no, not really
 		}
@@ -68,7 +82,7 @@ func CreateMongoSession() *mgo.Session {
 		return MgoSession
 	}
 
-	return MgoSession.Clone()
+	return db.MgoSession.Clone()
 }
 
 // func GetDb() *mgo.Database {
@@ -76,6 +90,6 @@ func CreateMongoSession() *mgo.Session {
 // 	return session.DB(MongoConfig.Database)
 // }
 
-func CloseSession() {
-	MgoSession.Close()
+func (db *MongoDB) CloseSession() {
+	db.MgoSession.Close()
 }

@@ -1,10 +1,8 @@
 package goredis
 
 import (
-	"bitbucket.org/contlo/go_common_lib/config"
-	"bitbucket.org/contlo/go_common_lib/logger"
-	myconfig "go_common_lib/config"
-	log "go_common_lib/logger"
+	myconfig "bitbucket.org/zatasales/go_common_lib/config"
+	log "bitbucket.org/zatasales/go_common_lib/logger"
 	"time"
 
 	"github.com/Scalingo/go-workers"

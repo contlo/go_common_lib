@@ -2,8 +2,7 @@ package rhttp
 
 import (
 	"bytes"
-	"bitbucket.org/zatasales/go_common_lib/logger"
-	log "go_common_lib/logger"
+	log "bitbucket.org/zatasales/go_common_lib/logger"
 	"io/ioutil"
 	"net/http"
 	"time"
