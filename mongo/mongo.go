@@ -70,7 +70,7 @@ func (db *MongoDB) CreateMongoSession() *mgo.Session {
 		}
 
 
-		log.Info("Connecting to mongo db...", err)
+		log.Info("Connecting to mongo db...")
 		fmt.Println("Connecting to mongo db...")
 		MgoSession, err := mgo.DialWithInfo(dialInfo)
 
