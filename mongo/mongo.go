@@ -1,20 +1,17 @@
 package mongo
 
 import (
-	"crypto/tls"
-	"fmt"
 	myconfig "bitbucket.org/zatasales/go_common_lib/config"
 	log "bitbucket.org/zatasales/go_common_lib/logger"
-	"gopkg.in/mgo.v2"
-	"net"
+	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"time"
+	"context"
 	_ "time"
 )
 
-var (
-	MgoSession  *mgo.Session
-	MongoConfig *MongoConfigData
-)
 
 type MongoConfigData struct {
 	Database string
@@ -25,8 +22,10 @@ type MongoConfigData struct {
 }
 
 type MongoDB struct {
-	MgoSession  *mgo.Session
 	MongoConfig *MongoConfigData
+	Client *mongo.Client
+	Context context.Context
+	CancelFunc context.CancelFunc
 }
 
 
@@ -44,52 +43,28 @@ func FetchMongoConfig(configFile string) *MongoConfigData {
 	return &mongoConfig1
 }
 
-// creating mongo session
-func (db *MongoDB) CreateMongoSession() *mgo.Session {
-	if db.MgoSession == nil {
+func (db *MongoDB) Connect() {
+	if db.Client == nil {
 		config := db.MongoConfig
-		var err error
-		var dialInfo *mgo.DialInfo
-		log.Info("RAMRAM")
-		log.Info(config.MongoURI)
-		if len(config.MongoURI) > 0 {
-			dialInfo, err = mgo.ParseURL(config.MongoURI)
-			tlsConfig := &tls.Config{}
-			dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
-				conn, err := tls.Dial("tcp", addr.String(), tlsConfig)
-				return conn, err
-			}
-		} else {
-			dialInfo = &mgo.DialInfo{
-				Addrs:    config.Hosts,
-				Timeout:  60 * time.Second,
-				Database: config.Database,
-				Username: config.Username,
-				Password: config.Password,
-			}
-		}
-
-
-		log.Info("Connecting to mongo db...")
-		fmt.Println("Connecting to mongo db...")
-		MgoSession, err := mgo.DialWithInfo(dialInfo)
-
-		//MgoSession, err = mgo.DialWithInfo(info)
+		context, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		db.Context = context
+		db.CancelFunc = cancel
+		fmt.Println("Connecting to mongodb...")
+		client, err := mongo.Connect(context, options.Client().ApplyURI(config.MongoURI))
 		if err != nil {
-			panic(err) // no, not really
+			fmt.Println("Unable to connect to mongodb...", err)
+			log.Error("Unable to connect to mongodb...", err)
+			return
 		}
-		fmt.Println("Done:: Connecting to mongo db...")
-		return MgoSession
-	}
 
-	return db.MgoSession.Clone()
+		err = client.Ping(context, readpref.Primary())
+		fmt.Println("Done: Connecting to mongodb...")
+		db.Client = client
+	}
 }
 
-// func GetDb() *mgo.Database {
-// 	session := CreateMongoSession()
-// 	return session.DB(MongoConfig.Database)
-// }
 
-func (db *MongoDB) CloseSession() {
-	db.MgoSession.Close()
+func (db *MongoDB) Disconnect() {
+	db.CancelFunc()
 }
