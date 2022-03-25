@@ -15,9 +15,9 @@ type Pool struct {
 	wg    sync.WaitGroup
 }
 
-func NewPool(size int) *Pool {
+func NewPool(size int, bufferSize int) *Pool {
 	pool := &Pool{
-		tasks: make(chan Task, 128),
+		tasks: make(chan Task, bufferSize),
 		kill:  make(chan struct{}),
 	}
 	pool.Resize(size)
