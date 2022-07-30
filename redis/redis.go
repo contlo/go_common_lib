@@ -20,6 +20,7 @@ type IClient interface {
 	ZAdd(key string, values []redis.Z) error
 	ZRem(key string, values ...interface{}) error
 	ZRange(key string, start int64, end int64) []string
+	ZCard(key string) int64
 }
 
 type Client struct {
@@ -145,6 +146,11 @@ func (client *Client) ZRange(key string, start int64, end int64) []string {
 	return val.Val()
 }
 
+func (client *Client) ZCard(key string) int64 {
+	val := client.GetRedisClient().ZCard(key)
+	return val.Val()
+}
+
 
 ////////////////// cluster functions
 
@@ -206,5 +212,10 @@ func (client *ClusterClient) ZRem(key string, values ...interface{}) error {
 
 func (client *ClusterClient) ZRange(key string, start int64, end int64) []string {
 	val := client.GetRedisClient().ZRange(key, start, end)
+	return val.Val()
+}
+
+func (client *ClusterClient) ZCard(key string) int64 {
+	val := client.GetRedisClient().ZCard(key)
 	return val.Val()
 }
