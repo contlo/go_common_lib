@@ -54,6 +54,7 @@ func FetchRedisConfig(configFile string) *RedisConfig {
 	var redisConfig RedisConfig
 	config := v1.GetStringMapString(myconfig.GetEnv())
 	redisConfig.Host = config["host"]
+	redisConfig.Hosts = config["hosts"]
 	redisConfig.Port = config["port"]
 	redisConfig.Password = config["password"]
 	return &redisConfig
