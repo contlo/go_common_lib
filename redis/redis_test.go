@@ -25,7 +25,7 @@ func TestSetAndGetValue(t *testing.T) {
 }
 
 func TestFetchRedisConfig(t *testing.T) {
-	config := FetchRedisConfig()
+	config := FetchRedisConfig("test")
 
 	assert.Equal(t, config.Host, "localhost", "TestFetchRedisConfig host config mismatch.")
 	assert.Equal(t, config.Port, "6379", "TestFetchRedisConfig port config mismatch.")
