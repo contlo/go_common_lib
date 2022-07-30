@@ -141,7 +141,7 @@ func (client *Client) ZRem(key string, values ...interface{}) error {
 
 
 func (client *Client) ZRange(key string, start int64, end int64) []string {
-	val := client.GetRedisClient().ZRange("a", start, end)
+	val := client.GetRedisClient().ZRange(key, start, end)
 	return val.Val()
 }
 
@@ -205,6 +205,6 @@ func (client *ClusterClient) ZRem(key string, values ...interface{}) error {
 
 
 func (client *ClusterClient) ZRange(key string, start int64, end int64) []string {
-	val := client.GetRedisClient().ZRange("a", start, end)
+	val := client.GetRedisClient().ZRange(key, start, end)
 	return val.Val()
 }
