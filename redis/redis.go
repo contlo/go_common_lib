@@ -1,11 +1,12 @@
 package goredis
 
 import (
-	myconfig "bitbucket.org/zatasales/go_common_lib/config"
-	log "bitbucket.org/zatasales/go_common_lib/logger"
-	"time"
-	"gopkg.in/redis.v4"
+	myconfig "go_common_lib/config"
+	log "go_common_lib/logger"
 	"strings"
+	"time"
+
+	"gopkg.in/redis.v4"
 )
 
 //redis global client to be declared
@@ -35,16 +36,16 @@ type ClusterClient struct {
 
 type RedisConfig struct {
 	Host     string
-	Hosts     string
+	Hosts    string
 	Port     string
 	Password string
 }
 
-func (client *ClusterClient) GetRedisClient() *redis.ClusterClient{
+func (client *ClusterClient) GetRedisClient() *redis.ClusterClient {
 	return client.redisClient
 }
 
-func (client *Client) GetRedisClient() *redis.Client{
+func (client *Client) GetRedisClient() *redis.Client {
 	return client.redisClient
 }
 
@@ -61,14 +62,13 @@ func FetchRedisConfig(configFile string) *RedisConfig {
 	return &redisConfig
 }
 
-
 // Init - initializes the redisClient
 func (client *ClusterClient) Init() {
 	if client.redisClient == nil {
 		redisConfig := client.RedisConfig
 		addr := strings.Split(redisConfig.Hosts, ",")
 		client.redisClient = redis.NewClusterClient(&redis.ClusterOptions{
-			Addrs:     addr,
+			Addrs: addr,
 		})
 	}
 }
@@ -107,13 +107,12 @@ func (client *Client) SetValue(key string, value string) error {
 }
 
 func (client *Client) SetValueEx(key string, value string, seconds int) error {
-	err := client.GetRedisClient().Set(key, value, time.Duration(seconds) * time.Second).Err()
+	err := client.GetRedisClient().Set(key, value, time.Duration(seconds)*time.Second).Err()
 	if err != nil {
 		log.Error("Redis read key error: " + err.Error())
 	}
 	return err
 }
-
 
 func (client *Client) LPush(key string, value string) error {
 	err := client.GetRedisClient().LPush(key, value).Err()
@@ -122,7 +121,6 @@ func (client *Client) LPush(key string, value string) error {
 	}
 	return err
 }
-
 
 func (client *Client) ZAdd(key string, values []redis.Z) error {
 	err := client.GetRedisClient().ZAdd(key, values...).Err()
@@ -140,7 +138,6 @@ func (client *Client) ZRem(key string, values ...interface{}) error {
 	return err
 }
 
-
 func (client *Client) ZRange(key string, start int64, end int64) []string {
 	val := client.GetRedisClient().ZRange(key, start, end)
 	return val.Val()
@@ -150,7 +147,6 @@ func (client *Client) ZCard(key string) int64 {
 	val := client.GetRedisClient().ZCard(key)
 	return val.Val()
 }
-
 
 ////////////////// cluster functions
 
@@ -176,13 +172,12 @@ func (client *ClusterClient) SetValue(key string, value string) error {
 }
 
 func (client *ClusterClient) SetValueEx(key string, value string, seconds int) error {
-	err := client.GetRedisClient().Set(key, value, time.Duration(seconds) * time.Second).Err()
+	err := client.GetRedisClient().Set(key, value, time.Duration(seconds)*time.Second).Err()
 	if err != nil {
 		log.Error("Redis read key error: " + err.Error())
 	}
 	return err
 }
-
 
 func (client *ClusterClient) LPush(key string, value string) error {
 	err := client.GetRedisClient().LPush(key, value).Err()
@@ -191,7 +186,6 @@ func (client *ClusterClient) LPush(key string, value string) error {
 	}
 	return err
 }
-
 
 func (client *ClusterClient) ZAdd(key string, values []redis.Z) error {
 	err := client.GetRedisClient().ZAdd(key, values...).Err()
@@ -208,7 +202,6 @@ func (client *ClusterClient) ZRem(key string, values ...interface{}) error {
 	}
 	return err
 }
-
 
 func (client *ClusterClient) ZRange(key string, start int64, end int64) []string {
 	val := client.GetRedisClient().ZRange(key, start, end)

@@ -2,7 +2,7 @@ package rhttp
 
 import (
 	"bytes"
-	log "bitbucket.org/zatasales/go_common_lib/logger"
+	log "go_common_lib/logger"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -26,7 +26,7 @@ type HttpFetcher struct {
 
 type HttpResponse struct {
 	StatusCode int
-	Content []byte
+	Content    []byte
 }
 
 func getHttpClient() *http.Client {
@@ -85,14 +85,14 @@ func (fetcher *HttpFetcher) PostWithHeaderAuthKeys(url string, buffer *bytes.Buf
 
 	res, err := getHttpClient().Do(req)
 	if err != nil {
-		return &HttpResponse{StatusCode: 400, Content:nil}, err
+		return &HttpResponse{StatusCode: 400, Content: nil}, err
 	}
 
 	defer res.Body.Close()
 	contents, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Error("Failed to call http post "+url, err)
-		return &HttpResponse{StatusCode: 400, Content:nil}, err
+		return &HttpResponse{StatusCode: 400, Content: nil}, err
 	}
 
 	// bytes.Buffer
