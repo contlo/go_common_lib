@@ -2,7 +2,7 @@ package gomysql
 
 import (
 	"fmt"
-	myconfig "bitbucket.org/zatasales/go_common_lib/config"
+	myconfig "go_common_lib/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -25,7 +25,7 @@ type MysqlDB struct {
 	DB          *sqlx.DB
 	IsSlave     bool
 	MysqlConfig *MysqlConfigData
-	ConfigFile string
+	ConfigFile  string
 }
 
 func (db *MysqlDB) Init() {

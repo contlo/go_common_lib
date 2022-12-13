@@ -1,17 +1,17 @@
 package mongo
 
 import (
-	myconfig "bitbucket.org/zatasales/go_common_lib/config"
-	log "bitbucket.org/zatasales/go_common_lib/logger"
+	"context"
 	"fmt"
+	myconfig "go_common_lib/config"
+	log "go_common_lib/logger"
+	"time"
+	_ "time"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"time"
-	"context"
-	_ "time"
 )
-
 
 type MongoConfigData struct {
 	Database string
@@ -23,11 +23,10 @@ type MongoConfigData struct {
 
 type MongoDB struct {
 	MongoConfig *MongoConfigData
-	Client *mongo.Client
-	Context context.Context
-	CancelFunc context.CancelFunc
+	Client      *mongo.Client
+	Context     context.Context
+	CancelFunc  context.CancelFunc
 }
-
 
 // FetchMongoConfig - reading mongo config from mongo.yml and setting it up
 func FetchMongoConfig(configFile string) *MongoConfigData {
@@ -63,7 +62,6 @@ func (db *MongoDB) Connect() {
 		db.Client = client
 	}
 }
-
 
 func (db *MongoDB) Disconnect() {
 	db.CancelFunc()
