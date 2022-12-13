@@ -1,8 +1,8 @@
 package goredis
 
 import (
-	myconfig "go_common_lib/config"
-	log "go_common_lib/logger"
+	myconfig "github.com/contlo/go_common_lib/config"
+	log "github.com/contlo/go_common_lib/logger"
 	"strings"
 	"time"
 

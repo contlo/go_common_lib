@@ -2,7 +2,7 @@ package log
 
 import (
 	"fmt"
-	myconfig "go_common_lib/config"
+	myconfig "github.com/contlo/go_common_lib/config"
 	"os"
 
 	"github.com/op/go-logging"

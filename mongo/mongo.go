@@ -3,8 +3,8 @@ package mongo
 import (
 	"context"
 	"fmt"
-	myconfig "go_common_lib/config"
-	log "go_common_lib/logger"
+	myconfig "github.com/contlo/go_common_lib/config"
+	log "github.com/contlo/go_common_lib/logger"
 	"time"
 	_ "time"
 
