@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.17.7 // indirect
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/spf13/viper v1.14.0
