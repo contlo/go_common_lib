@@ -17,7 +17,7 @@ func GetEnv() string {
 // Only functions with cap letter are exported
 func SetupViperAndReadConfig(configName string) *viper.Viper {
 	v1 := viper.New()
-  v1.AddConfigPath("../../config")
+	v1.AddConfigPath("../../config")
 	v1.AddConfigPath("../config")
 	v1.AddConfigPath("./config")
 
