@@ -149,6 +149,11 @@ func (client *Client) ZCard(key string) int64 {
   return val.Val()
 }
 
+func (client *Client) SMembers(key string) []string {
+  val := client.GetRedisClient().SMembers(key)
+  return val.Val()
+}
+
 ////////////////// cluster functions
 
 // GetValue - get data from redis
