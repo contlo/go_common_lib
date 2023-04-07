@@ -1,6 +1,7 @@
 package goredis
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -129,6 +130,7 @@ func (client *Client) LPush(key string, value string) error {
 func (client *Client) ZAdd(key string, values []redis.Z) error {
   err := client.GetRedisClient().ZAdd(key, values...).Err()
   if err != nil {
+    fmt.Println("Redis ZAdd key error: " + err.Error())
     log.Error("Redis ZAdd key error: " + err.Error())
   }
   return err
@@ -207,6 +209,7 @@ func (client *ClusterClient) LPush(key string, value string) error {
 func (client *ClusterClient) ZAdd(key string, values []redis.Z) error {
   err := client.GetRedisClient().ZAdd(key, values...).Err()
   if err != nil {
+    fmt.Println("Redis ZAdd key error: " + err.Error())
     log.Error("Redis ZAdd key error: " + err.Error())
   }
   return err
