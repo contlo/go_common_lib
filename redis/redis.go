@@ -1,12 +1,13 @@
 package goredis
 
 import (
-  myconfig "github.com/contlo/go_common_lib/config"
-  log "github.com/contlo/go_common_lib/logger"
-  "strings"
-  "time"
+	"strings"
+	"time"
 
-  "gopkg.in/redis.v4"
+	myconfig "github.com/contlo/go_common_lib/config"
+	log "github.com/contlo/go_common_lib/logger"
+
+	"gopkg.in/redis.v4"
 )
 
 //redis global client to be declared
@@ -21,6 +22,7 @@ type IClient interface {
   ZAdd(key string, values []redis.Z) error
   ZRem(key string, values ...interface{}) error
   ZRange(key string, start int64, end int64) []string
+  ZRangeByScore(key string, min string, max string, offset int64, count int64) []string
   ZCard(key string) int64
   SMembers(key string) []string
 }
@@ -211,6 +213,11 @@ func (client *ClusterClient) ZRem(key string, values ...interface{}) error {
 
 func (client *ClusterClient) ZRange(key string, start int64, end int64) []string {
   val := client.GetRedisClient().ZRange(key, start, end)
+  return val.Val()
+}
+
+func (client *ClusterClient) ZRangeByScore(key string, min string, max string, offset int64, count int64 ) []string {
+  val:= client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
   return val.Val()
 }
 
