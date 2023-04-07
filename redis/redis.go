@@ -25,6 +25,7 @@ type IClient interface {
   ZRangeByScore(key string, min string, max string, offset int64, count int64) []string
   ZCard(key string) int64
   SMembers(key string) []string
+  Expire (key string, expire time.Duration) bool
 }
 
 type Client struct {
@@ -155,6 +156,14 @@ func (client *Client) SMembers(key string) []string {
   val := client.GetRedisClient().SMembers(key)
   return val.Val()
 }
+func (client *Client) Expire(key string, expire time.Duration) bool {
+  val:=client.GetRedisClient().Expire(key, expire*time.Second) 
+  return val.Val()
+}
+func (client *Client) ZRangeByScore(key string, min string, max string, offset int64, count int64 ) []string {
+  val:= client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
+  return val.Val()
+}
 
 ////////////////// cluster functions
 
@@ -228,5 +237,9 @@ func (client *ClusterClient) ZCard(key string) int64 {
 
 func (client *ClusterClient) SMembers(key string) []string {
   val := client.GetRedisClient().SMembers(key)
+  return val.Val()
+}
+func (client *ClusterClient) Expire(key string, expire time.Duration) bool {
+  val:=client.GetRedisClient().Expire(key, expire*time.Second) 
   return val.Val()
 }
