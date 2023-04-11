@@ -66,7 +66,7 @@ func FetchRedisConfig(configFile string) *RedisConfig {
   redisConfig.Hosts = config["hosts"]
   redisConfig.Port = config["port"]
   redisConfig.Password = config["password"]
-  if dbVal, ok := config["DB"]; ok {
+  if dbVal, ok := config["db"]; ok {
     redisConfig.DB = dbVal
   } else {
     redisConfig.DB = "0"
