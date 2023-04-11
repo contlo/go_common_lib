@@ -1,14 +1,15 @@
 package goredis
 
 import (
-	"fmt"
-	"strings"
-	"time"
+  "fmt"
+  "strconv"
+  "strings"
+  "time"
 
-	myconfig "github.com/contlo/go_common_lib/config"
-	log "github.com/contlo/go_common_lib/logger"
+  myconfig "github.com/contlo/go_common_lib/config"
+  log "github.com/contlo/go_common_lib/logger"
 
-	"gopkg.in/redis.v4"
+  "gopkg.in/redis.v4"
 )
 
 //redis global client to be declared
@@ -26,7 +27,7 @@ type IClient interface {
   ZRangeByScore(key string, min string, max string, offset int64, count int64) []string
   ZCard(key string) int64
   SMembers(key string) []string
-  Expire (key string, expire time.Duration) bool
+  Expire(key string, expire time.Duration) bool
 }
 
 type Client struct {
@@ -44,6 +45,7 @@ type RedisConfig struct {
   Hosts    string
   Port     string
   Password string
+  DB       string
 }
 
 func (client *ClusterClient) GetRedisClient() *redis.ClusterClient {
@@ -64,6 +66,12 @@ func FetchRedisConfig(configFile string) *RedisConfig {
   redisConfig.Hosts = config["hosts"]
   redisConfig.Port = config["port"]
   redisConfig.Password = config["password"]
+  if dbVal, ok := config["DB"]; ok {
+    redisConfig.DB = dbVal
+  } else {
+    redisConfig.DB = "0"
+  }
+
   return &redisConfig
 }
 
@@ -82,10 +90,11 @@ func (client *ClusterClient) Init() {
 func (client *Client) Init() {
   if client.redisClient == nil {
     redisConfig := client.RedisConfig
+    db, _ := strconv.Atoi(redisConfig.DB)
     client.redisClient = redis.NewClient(&redis.Options{
       Addr:     redisConfig.Host + ":" + redisConfig.Port,
       Password: redisConfig.Password, // no password set
-      DB:       0,                    // use default DB
+      DB:       db,                   // use default DB
     })
   }
 }
@@ -159,11 +168,11 @@ func (client *Client) SMembers(key string) []string {
   return val.Val()
 }
 func (client *Client) Expire(key string, expire time.Duration) bool {
-  val:=client.GetRedisClient().Expire(key, expire*time.Second) 
+  val := client.GetRedisClient().Expire(key, expire*time.Second)
   return val.Val()
 }
-func (client *Client) ZRangeByScore(key string, min string, max string, offset int64, count int64 ) []string {
-  val:= client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
+func (client *Client) ZRangeByScore(key string, min string, max string, offset int64, count int64) []string {
+  val := client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
   return val.Val()
 }
 
@@ -228,8 +237,8 @@ func (client *ClusterClient) ZRange(key string, start int64, end int64) []string
   return val.Val()
 }
 
-func (client *ClusterClient) ZRangeByScore(key string, min string, max string, offset int64, count int64 ) []string {
-  val:= client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
+func (client *ClusterClient) ZRangeByScore(key string, min string, max string, offset int64, count int64) []string {
+  val := client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
   return val.Val()
 }
 
@@ -243,6 +252,6 @@ func (client *ClusterClient) SMembers(key string) []string {
   return val.Val()
 }
 func (client *ClusterClient) Expire(key string, expire time.Duration) bool {
-  val:=client.GetRedisClient().Expire(key, expire*time.Second) 
+  val := client.GetRedisClient().Expire(key, expire*time.Second)
   return val.Val()
 }
