@@ -260,5 +260,5 @@ func (client *ClusterClient) Expire(key string, expire time.Duration) bool {
   return val.Val()
 }
 func (client *ClusterClient) Lock(key string, expire time.Duration) bool {
-		return !client.GetRedisClient().Exists(key).Val() && client.GetRedisClient().SetNX(key, 1, expire).Val() 
+	return !client.GetRedisClient().Exists(key).Val() && client.GetRedisClient().SetNX(key, 1, expire).Val() 
 }
