@@ -1,15 +1,15 @@
 package goredis
 
 import (
-  "fmt"
-  "strconv"
-  "strings"
-  "time"
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
 
-  myconfig "github.com/contlo/go_common_lib/config"
-  log "github.com/contlo/go_common_lib/logger"
+	myconfig "github.com/contlo/go_common_lib/config"
+	log "github.com/contlo/go_common_lib/logger"
 
-  "gopkg.in/redis.v4"
+	"gopkg.in/redis.v4"
 )
 
 //redis global client to be declared
@@ -28,6 +28,7 @@ type IClient interface {
   ZCard(key string) int64
   SMembers(key string) []string
   Expire(key string, expire time.Duration) bool
+	Lock(key string, expire time.Duration) bool
 }
 
 type Client struct {
@@ -126,6 +127,14 @@ func (client *Client) SetValueEx(key string, value string, seconds int) error {
     log.Error("Redis read key error: " + err.Error())
   }
   return err
+}
+func (client *Client) Lock(key string, expire time.Duration) bool {
+	if client.GetRedisClient().Exists(key).Val() {
+		return false
+	}
+	if client.GetRedisClient().SetNX(key, 1, expire).Val() {
+		return true
+	}
 }
 
 func (client *Client) LPush(key string, value string) error {
@@ -254,4 +263,12 @@ func (client *ClusterClient) SMembers(key string) []string {
 func (client *ClusterClient) Expire(key string, expire time.Duration) bool {
   val := client.GetRedisClient().Expire(key, expire*time.Second)
   return val.Val()
+}
+func (client *ClusterClient) Lock(key string, expire time.Duration) bool {
+	if client.GetRedisClient().Exists(key).Val() {
+		return false
+	}
+	if client.GetRedisClient().SetNX(key, 1, expire).Val() {
+		return true
+	}
 }
