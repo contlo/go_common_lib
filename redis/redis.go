@@ -131,9 +131,11 @@ func (client *Client) SetValueEx(key string, value string, seconds int) error {
 func (client *Client) Lock(key string, expire time.Duration) bool {
 	if client.GetRedisClient().Exists(key).Val() {
 		return false
-	}
-	if client.GetRedisClient().SetNX(key, 1, expire).Val() {
-		return true
+	} else {
+		if client.GetRedisClient().SetNX(key, 1, expire).Val() {
+			return true
+		}
+		return false
 	}
 }
 
@@ -267,8 +269,10 @@ func (client *ClusterClient) Expire(key string, expire time.Duration) bool {
 func (client *ClusterClient) Lock(key string, expire time.Duration) bool {
 	if client.GetRedisClient().Exists(key).Val() {
 		return false
-	}
-	if client.GetRedisClient().SetNX(key, 1, expire).Val() {
-		return true
+	} else {
+		if client.GetRedisClient().SetNX(key, 1, expire).Val() {
+			return true
+		}
+		return false
 	}
 }
