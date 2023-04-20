@@ -1,15 +1,15 @@
 package goredis
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
-	"time"
+  "fmt"
+  "strconv"
+  "strings"
+  "time"
 
-	myconfig "github.com/contlo/go_common_lib/config"
-	log "github.com/contlo/go_common_lib/logger"
+  myconfig "github.com/contlo/go_common_lib/config"
+  log "github.com/contlo/go_common_lib/logger"
 
-	"gopkg.in/redis.v4"
+  "gopkg.in/redis.v4"
 )
 
 //redis global client to be declared
@@ -28,7 +28,8 @@ type IClient interface {
   ZCard(key string) int64
   SMembers(key string) []string
   Expire(key string, expire time.Duration) bool
-	Lock(key string, expire time.Duration) bool
+  Lock(key string, expire time.Duration) bool
+  GetRedisClient() *redis.Client
 }
 
 type Client struct {
@@ -128,14 +129,6 @@ func (client *Client) SetValueEx(key string, value string, seconds int) error {
   }
   return err
 }
-func (client *Client) Lock(key string, expire time.Duration) bool {
-	if client.GetRedisClient().Exists(key).Val() {
-		return false
-	}
-	if client.GetRedisClient().SetNX(key, 1, expire).Val() {
-		return true
-	}
-}
 
 func (client *Client) LPush(key string, value string) error {
   err := client.GetRedisClient().LPush(key, value).Err()
@@ -183,6 +176,15 @@ func (client *Client) Expire(key string, expire time.Duration) bool {
 func (client *Client) ZRangeByScore(key string, min string, max string, offset int64, count int64) []string {
   val := client.GetRedisClient().ZRangeByScore(key, redis.ZRangeBy{Min: min, Max: max, Offset: offset, Count: count})
   return val.Val()
+}
+func (client *Client) Lock(key string, expire time.Duration) bool {
+  val := client.GetRedisClient().Incr(key)
+  if val.Val() > 1 {
+    return false
+  } else {
+    client.GetRedisClient().Expire(key, expire)
+  }
+  return true
 }
 
 ////////////////// cluster functions
@@ -265,10 +267,11 @@ func (client *ClusterClient) Expire(key string, expire time.Duration) bool {
   return val.Val()
 }
 func (client *ClusterClient) Lock(key string, expire time.Duration) bool {
-	if client.GetRedisClient().Exists(key).Val() {
-		return false
-	}
-	if client.GetRedisClient().SetNX(key, 1, expire).Val() {
-		return true
-	}
+  val := client.GetRedisClient().Incr(key)
+  if val.Val() > 1 {
+    return false
+  } else {
+    client.GetRedisClient().Expire(key, expire)
+  }
+  return true
 }
