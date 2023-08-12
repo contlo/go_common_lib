@@ -173,6 +173,32 @@ func (client *Client) SMembers(key string) []string {
     val := client.GetRedisClient().SMembers(ctx, key)
     return val.Val()
 }
+
+func (client *Client) SAdd(key string, values ...string) error {
+    err := client.GetRedisClient().SAdd(ctx, key, values).Err()
+    if err != nil {
+        fmt.Println("Redis ZAdd key error: " + err.Error())
+        log.Error("Redis ZAdd key error: " + err.Error())
+    }
+    return err
+}
+
+func (client *Client) SMIsMemberValues(key string, values ...string) ([]string, error) {
+    valuesOut := []string{}
+    results, err := client.GetRedisClient().SMIsMember(context.TODO(), key, values).Result()
+    if err != nil {
+        log.Error("Redis SMIsMember key error: " + err.Error())
+        return nil, err
+    }
+    for i, value := range values {
+        if results[i] {
+            valuesOut = append(valuesOut, value)
+        }
+    }
+
+    return valuesOut, nil
+}
+
 func (client *Client) Expire(key string, expire time.Duration) bool {
     val := client.GetRedisClient().Expire(ctx, key, expire*time.Second)
     return val.Val()
