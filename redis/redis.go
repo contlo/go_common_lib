@@ -32,6 +32,8 @@ type IClient interface {
     Expire(key string, expire time.Duration) bool
     Lock(key string, expire time.Duration) bool
     GetRedisClient() *redis.Client
+    SAdd(key string, values ...string) error
+    SMIsMemberValues(key string, values ...string) ([]string, error)
 }
 
 type Client struct {
