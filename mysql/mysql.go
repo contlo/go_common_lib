@@ -39,7 +39,6 @@ func (db *MysqlDB) Init() {
 
 	if db.DB == nil {
 		dataSourceName := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", db.MysqlConfig.Username, db.MysqlConfig.Password, db.MysqlConfig.Host, db.MysqlConfig.Port, db.MysqlConfig.Database)
-		fmt.Println(dataSourceName)
 		var err error
 		db.DB, err = sqlx.Connect("mysql", dataSourceName)
 		if err != nil {
